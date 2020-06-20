@@ -11,6 +11,10 @@ from keras.utils import to_categorical
 #################################
 #   Define parameters manually  #
 #################################
+
+
+#TEST
+
 def define_parameters():
     params = dict()
     params['epsilon_decay_linear'] = 1/75
