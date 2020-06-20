@@ -19,7 +19,7 @@ def define_parameters():
     params['second_layer_size'] = 150   # neurons in the second layer
     params['third_layer_size'] = 150    # neurons in the third layer
     params['episodes'] = 150            
-    params['memory_size'] = 2500
+    params['memory_size'] = 10000
     params['batch_size'] = 500
     params['weights_path'] = 'weights/weights.hdf5'
     params['load_weights'] = True
