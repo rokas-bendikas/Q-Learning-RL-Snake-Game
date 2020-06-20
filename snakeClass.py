@@ -13,7 +13,7 @@ from keras.utils import to_categorical
 #################################
 
 
-#TEST
+#TEST2
 
 def define_parameters():
     params = dict()
