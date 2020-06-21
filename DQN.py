@@ -66,10 +66,11 @@ class DQNAgent(object):
             player.x_change == 20,  # move right
             player.y_change == -20,  # move up
             player.y_change == 20,  # move down
-            food.x_food < player.x,  # food left
-            food.x_food > player.x,  # food right
-            food.y_food < player.y,  # food up
-            food.y_food > player.y  # food down
+            
+            food[0].x_food < player.x or food[1].x_food < player.x,  # food left
+            food[0].x_food > player.x or food[1].x_food > player.x,  # food right
+            food[0].y_food < player.y or food[1].y_food < player.y,  # food up
+            food[0].y_food > player.y or food[1].y_food > player.y   # food down
             ]
 
         for i in range(len(state)):

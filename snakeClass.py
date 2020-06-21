@@ -13,7 +13,7 @@ from keras.utils import to_categorical
 #################################
 
 
-#TEST2
+
 
 def define_parameters():
     params = dict()
@@ -40,7 +40,7 @@ class Game:
         self.bg = pygame.image.load("img/background.png")
         self.crash = False
         self.player = Player(self)
-        self.food = Food()
+        self.food = [Food(),Food()]
         self.score = 0
 
 
@@ -132,10 +132,12 @@ class Food(object):
 
 
 def eat(player, food, game):
-    if player.x == food.x_food and player.y == food.y_food:
-        food.food_coord(game, player)
-        player.eaten = True
-        game.score = game.score + 1
+    for i in range(len(food)-1):
+        
+        if player.x == food[i].x_food and player.y == food[i].y_food:
+            food[i].food_coord(game, player)
+            player.eaten = True
+            game.score = game.score + 1
 
 
 def get_record(score, record):
@@ -163,7 +165,8 @@ def display(player, food, game, record):
     game.gameDisplay.fill((255, 255, 255))
     display_ui(game, game.score, record)
     player.display_player(player.position[-1][0], player.position[-1][1], player.food, game)
-    food.display_food(food.x_food, food.y_food, game)
+    for i in range(len(food)-1):
+        food[i].display_food(food[i].x_food, food[i].y_food, game)
 
 
 def update_screen():
