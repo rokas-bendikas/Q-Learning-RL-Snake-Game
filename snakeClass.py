@@ -19,9 +19,9 @@ def define_parameters():
     params = dict()
     params['epsilon_decay_linear'] = 1/75
     params['learning_rate'] = 0.0005
-    params['first_layer_size'] = 150   # neurons in the first layer
-    params['second_layer_size'] = 150   # neurons in the second layer
-    params['third_layer_size'] = 150    # neurons in the third layer
+    params['first_layer_size'] = 200   # neurons in the first layer
+    params['second_layer_size'] = 200   # neurons in the second layer
+    params['third_layer_size'] = 200    # neurons in the third layer
     params['episodes'] = 150            
     params['memory_size'] = 10000
     params['batch_size'] = 500
@@ -40,7 +40,7 @@ class Game:
         self.bg = pygame.image.load("img/background.png")
         self.crash = False
         self.player = Player(self)
-        self.food = [Food(self),Food(self)]
+        self.food = [Food(self,self.player),Food(self,self.player)]
         self.score = 0
 
 
@@ -57,6 +57,8 @@ class Player(object):
         self.image = pygame.image.load('img/snakeBody.png')
         self.x_change = 20
         self.y_change = 0
+        self.steps = 0
+        
 
     def update_position(self, x, y):
         if self.position[-1][0] != x or self.position[-1][1] != y:
@@ -73,6 +75,8 @@ class Player(object):
             self.position.append([self.x, self.y])
             self.eaten = False
             self.food = self.food + 1
+            self.steps = 0
+            
         if np.array_equal(move, [1, 0, 0]):
             move_array = self.x_change, self.y_change
         elif np.array_equal(move, [0, 1, 0]) and self.y_change == 0:  # right - going horizontal
@@ -86,6 +90,8 @@ class Player(object):
         self.x_change, self.y_change = move_array
         self.x = x + self.x_change
         self.y = y + self.y_change
+        self.steps = self.steps + 1
+        
 
         if self.x < 20 or self.x > game.game_width - 40 \
                 or self.y < 20 \
@@ -107,16 +113,13 @@ class Player(object):
 
             update_screen()
         else:
-            pygame.time.wait(300)
+            pygame.time.wait(1)
 
 
 class Food(object):
-    def __init__(self,game):
+    def __init__(self,game,player):
         
-        x_rand = randint(20, game.game_width - 40)
-        self.x_food = x_rand - x_rand % 20
-        y_rand = randint(20, game.game_height - 40)
-        self.y_food = y_rand - y_rand % 20
+        self.food_coord(game,player)
         self.image = pygame.image.load('img/food2.png')
 
     def food_coord(self, game, player):
@@ -240,7 +243,7 @@ def run(display_option, speed, params):
                 final_move = to_categorical(randint(0, 2), num_classes=3)
             else:
                 # predict action based on the old state
-                prediction = agent.model.predict(state_old.reshape((1, 11)))
+                prediction = agent.model.predict(state_old.reshape((1, 16)))
                 final_move = to_categorical(np.argmax(prediction[0]), num_classes=3)
 
             # perform new move and get new state
@@ -277,7 +280,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     params = define_parameters()
     parser.add_argument("--display", type=bool, default=True)
-    parser.add_argument("--speed", type=int, default=50)
+    parser.add_argument("--speed", type=int, default=1)
     args = parser.parse_args()
     params['bayesian_optimization'] = False    # Use bayesOpt.py for Bayesian Optimization
     run(args.display, args.speed, params)

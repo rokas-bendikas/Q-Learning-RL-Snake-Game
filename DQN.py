@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from operator import add
 import collections
+import math
 
 class DQNAgent(object):
     def __init__(self, params):
@@ -28,7 +29,7 @@ class DQNAgent(object):
 
     def network(self):
         model = Sequential()
-        model.add(Dense(output_dim=self.first_layer, activation='relu', input_dim=11))
+        model.add(Dense(output_dim=self.first_layer, activation='relu', input_dim=16))
         model.add(Dense(output_dim=self.second_layer, activation='relu'))
         model.add(Dense(output_dim=self.third_layer, activation='relu'))
         model.add(Dense(output_dim=3, activation='softmax'))
@@ -40,6 +41,13 @@ class DQNAgent(object):
         return model
     
     def get_state(self, game, player, food):
+        
+        d_food0 = math.sqrt((food[0].x_food - player.x)**2 + (food[0].y_food - player.y)**2)
+        d_food1 = math.sqrt((food[1].x_food - player.x)**2 + (food[1].y_food - player.y)**2)
+        
+        # d_x = abs(food[0].x_food - player.x) >= abs(food[1].x_food - player.x)
+        #d_y = abs(food[0].y_food - player.y) >= abs(food[1].y_food - player.y)
+        
         state = [
             (player.x_change == 20 and player.y_change == 0 and ((list(map(add, player.position[-1], [20, 0])) in player.position) or
             player.position[-1][0] + 20 >= (game.game_width - 20))) or (player.x_change == -20 and player.y_change == 0 and ((list(map(add, player.position[-1], [-20, 0])) in player.position) or
@@ -67,10 +75,18 @@ class DQNAgent(object):
             player.y_change == -20,  # move up
             player.y_change == 20,  # move down
             
-            food[0].x_food < player.x or food[1].x_food < player.x,  # food left
-            food[0].x_food > player.x or food[1].x_food > player.x,  # food right
-            food[0].y_food < player.y or food[1].y_food < player.y,  # food up
-            food[0].y_food > player.y or food[1].y_food > player.y   # food down
+            food[0].x_food < player.x,  # food left
+            food[0].x_food > player.x,  # food right
+            food[0].y_food < player.y,  # food up
+            food[0].y_food > player.y,   # food down
+            
+            food[1].x_food < player.x,  # food left
+            food[1].x_food > player.x,  # food right
+            food[1].y_food < player.y,  # food up
+            food[1].y_food > player.y,  # food down
+            
+            d_food0 >= d_food1
+            
             ]
 
         for i in range(len(state)):
@@ -84,10 +100,12 @@ class DQNAgent(object):
     def set_reward(self, player, crash):
         self.reward = 0
         if crash:
-            self.reward = -10
+            self.reward = -50 - 0.5 * player.steps
             return self.reward
         if player.eaten:
-            self.reward = 10
+            self.reward = 20 * player.food - 0.5 * player.steps
+            
+            
         return self.reward
 
     def remember(self, state, action, reward, next_state, done):
@@ -109,7 +127,7 @@ class DQNAgent(object):
     def train_short_memory(self, state, action, reward, next_state, done):
         target = reward
         if not done:
-            target = reward + self.gamma * np.amax(self.model.predict(next_state.reshape((1, 11)))[0])
-        target_f = self.model.predict(state.reshape((1, 11)))
+            target = reward + self.gamma * np.amax(self.model.predict(next_state.reshape((1, 16)))[0])
+        target_f = self.model.predict(state.reshape((1, 16)))
         target_f[0][np.argmax(action)] = target
-        self.model.fit(state.reshape((1, 11)), target_f, epochs=1, verbose=0)
+        self.model.fit(state.reshape((1, 16)), target_f, epochs=1, verbose=0)
