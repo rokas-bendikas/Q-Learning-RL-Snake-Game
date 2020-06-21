@@ -40,7 +40,7 @@ class Game:
         self.bg = pygame.image.load("img/background.png")
         self.crash = False
         self.player = Player(self)
-        self.food = [Food(),Food()]
+        self.food = [Food(self),Food(self)]
         self.score = 0
 
 
@@ -111,9 +111,12 @@ class Player(object):
 
 
 class Food(object):
-    def __init__(self):
-        self.x_food = 240
-        self.y_food = 200
+    def __init__(self,game):
+        
+        x_rand = randint(20, game.game_width - 40)
+        self.x_food = x_rand - x_rand % 20
+        y_rand = randint(20, game.game_height - 40)
+        self.y_food = y_rand - y_rand % 20
         self.image = pygame.image.load('img/food2.png')
 
     def food_coord(self, game, player):
@@ -132,8 +135,7 @@ class Food(object):
 
 
 def eat(player, food, game):
-    for i in range(len(food)-1):
-        
+    for i in range(0,len(food)):       
         if player.x == food[i].x_food and player.y == food[i].y_food:
             food[i].food_coord(game, player)
             player.eaten = True
@@ -165,7 +167,7 @@ def display(player, food, game, record):
     game.gameDisplay.fill((255, 255, 255))
     display_ui(game, game.score, record)
     player.display_player(player.position[-1][0], player.position[-1][1], player.food, game)
-    for i in range(len(food)-1):
+    for i in range(0,len(food)):
         food[i].display_food(food[i].x_food, food[i].y_food, game)
 
 
