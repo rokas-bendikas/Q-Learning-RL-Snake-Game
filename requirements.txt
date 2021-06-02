@@ -58,7 +58,7 @@ tensorflow-estimator==1.14.0
 tensorpack==0.9.4
 termcolor==1.1.0
 tgan==0.1.0
-urllib3==1.25.9
+urllib3==1.26.5
 Werkzeug==0.16.1
 win-inet-pton==1.1.0
 wincertstore==0.2
